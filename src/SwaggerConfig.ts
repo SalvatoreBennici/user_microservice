@@ -15,7 +15,7 @@ const options: swaggerJSDoc.Options = {
             },
         ],
     },
-    apis: ['./src/interfaces/controllers/**/*.ts'],
+    apis: ['./src/interfaces/RESTful/**/*.ts'],
 };
 
 export const swaggerSpec = swaggerJSDoc(options);
