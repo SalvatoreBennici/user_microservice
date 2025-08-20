@@ -1,6 +1,6 @@
 import {type DeleteHouseholdUserPort} from '../domain/ports/delete-household-user-port';
 import {type UserRepository} from '../domain/ports/repositories/user-repository';
-import {UserRole} from '../domain/model/value-objects/user-role';
+import {UserRole} from '../domain/user-role';
 
 export class DeleteHouseholdUserService implements DeleteHouseholdUserPort {
 	constructor(private readonly userRepository: UserRepository) {}

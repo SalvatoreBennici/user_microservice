@@ -1,5 +1,5 @@
-import {type UserId} from '../value-objects/user-id';
-import {type UserRole} from '../value-objects/user-role';
+import {type UserId} from './user-id';
+import {type UserRole} from './user-role';
 
 export class User {
 	constructor(

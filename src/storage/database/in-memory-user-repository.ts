@@ -1,6 +1,6 @@
 import {type UserRepository} from '../../domain/ports/repositories/user-repository';
-import {type UserId} from '../../domain/model/value-objects/user-id';
-import {type User} from '../../domain/model/aggregates/user';
+import {type UserId} from '../../domain/user-id';
+import {type User} from '../../domain/user';
 
 export class InMemoryUserRepository implements UserRepository {
 	private users: User[] = [];

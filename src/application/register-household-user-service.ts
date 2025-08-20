@@ -1,7 +1,7 @@
 import {type RegisterHouseholdUserPort} from '../domain/ports/register-household-user-port';
 import {type UserRepository} from '../domain/ports/repositories/user-repository';
 import {type PasswordHasher} from '../domain/ports/password-hasher';
-import {userFactory} from '../domain/factories/user-factory';
+import {userFactory} from '../domain/user-factory';
 
 export class RegisterHouseholdUserService implements RegisterHouseholdUserPort {
 	constructor(

@@ -1,5 +1,5 @@
-import {type UserId} from '../../model/value-objects/user-id.js';
-import {type User} from '../../model/aggregates/user.js';
+import {type UserId} from '../../user-id';
+import {type User} from '../../user';
 
 export type UserRepository = {
 	save(user: User): Promise<void>;
