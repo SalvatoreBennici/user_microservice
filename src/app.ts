@@ -1,6 +1,6 @@
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
-import {swaggerSpec} from './swagger-config';
+import YAML from 'yamljs';
 import {InMemoryUserRepository} from './storage/database/in-memory-user-repository';
 import {BcryptPasswordHasher} from './storage/adapters/bcrypt-password-hasher';
 import {RegisterHouseholdUserService} from './application/register-household-user-service';
@@ -11,30 +11,32 @@ import {DeleteHouseholdUserService} from './application/delete-household-user-se
 const userRepository = new InMemoryUserRepository();
 const passwordHasher = new BcryptPasswordHasher();
 const registrationService = new RegisterHouseholdUserService(
-	userRepository,
-	passwordHasher,
+    userRepository,
+    passwordHasher,
 );
 const deleteHouseholdUserService = new DeleteHouseholdUserService(
-	userRepository,
+    userRepository,
 );
 
 // App Setup
 const app = express();
 app.use(express.json());
 
-// Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+const swaggerDocument = YAML.load(
+    './src/interfaces/restful/openapi.yaml',
+) as Record<string, unknown>;
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 const userController = new UserController(
-	registrationService,
-	deleteHouseholdUserService,
+    registrationService,
+    deleteHouseholdUserService,
 );
 app.use('/user', userController.router);
 
 // Start
 const port = 3000;
 app.listen(port, () => {
-	console.log(`Server on http://localhost:${port}`);
-	console.log(`API docs on http://localhost:${port}/api-docs`);
+    console.log(`Server on http://localhost:${port}`);
+    console.log(`API docs on http://localhost:${port}/api-docs`);
 });
