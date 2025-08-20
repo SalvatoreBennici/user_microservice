@@ -3,6 +3,13 @@ import com.github.gradle.node.npm.task.NpmTask
 plugins {
     base
     alias(libs.plugins.node)
+    alias(libs.plugins.gitSemVer)
+}
+
+buildscript {
+    dependencies {
+        classpath("io.github.andreabrighi:conventional-commit-strategy-for-git-sensitive-semantic-versioning-gradle-plugin:1.0.0")
+    }
 }
 
 node {
