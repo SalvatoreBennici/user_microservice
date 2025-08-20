@@ -1,4 +1,5 @@
 import com.github.gradle.node.npm.task.NpmTask
+import io.github.andreabrighi.gradle.gitsemver.conventionalcommit.ConventionalCommit
 
 plugins {
     base
@@ -11,6 +12,11 @@ buildscript {
     dependencies {
         classpath("io.github.andreabrighi:conventional-commit-strategy-for-git-sensitive-semantic-versioning-gradle-plugin:1.0.0")
     }
+}
+
+gitSemVer {
+    commitNameBasedUpdateStrategy(ConventionalCommit::semanticVersionUpdate)
+    assignGitSemanticVersion()
 }
 
 node {
