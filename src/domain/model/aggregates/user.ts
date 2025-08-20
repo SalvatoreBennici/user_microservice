@@ -1,0 +1,43 @@
+import {type UserId} from '../value-objects/user-id';
+import {type UserRole} from '../value-objects/user-role';
+
+export class User {
+	constructor(
+		private readonly _id: UserId,
+		private _username: string,
+		private _passwordHash: string,
+		private readonly _role: UserRole,
+	) {}
+
+	get id(): UserId {
+		return this._id;
+	}
+
+	get username(): string {
+		return this._username;
+	}
+
+	public changeUsername(newUsername: string): void {
+		if (!newUsername) {
+			throw new Error('Username cannot be empty.');
+		}
+
+		this._username = newUsername;
+	}
+
+	public async changePasswordHash(newPasswordHash: string): Promise<void> {
+		if (!newPasswordHash) {
+			throw new Error('PasswordHash cannot be empty.');
+		}
+
+		this._passwordHash = newPasswordHash;
+	}
+
+	get passwordHash(): string {
+		return this._passwordHash;
+	}
+
+	get role(): UserRole {
+		return this._role;
+	}
+}

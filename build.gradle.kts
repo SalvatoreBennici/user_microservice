@@ -1,6 +1,4 @@
 import com.github.gradle.node.npm.task.NpmTask
-import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.Exec
 
 plugins {
     base
@@ -8,7 +6,7 @@ plugins {
 }
 
 node {
-    version.set("20.11.1")
+    version.set("20.17.0")
     npmVersion.set("10.2.4")
     download.set(true)
     nodeProjectDir.set(file(project.projectDir))
@@ -25,6 +23,8 @@ val npmBuild = tasks.register<NpmTask>("npmBuild") {
     group = "build"
     description = "Builds the TypeScript project"
     dependsOn(npmCi)
+    inputs.dir("src")
+    outputs.dir("dist")
     args.set(listOf("run", "build"))
 }
 
