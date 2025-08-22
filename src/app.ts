@@ -2,7 +2,7 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import {InMemoryUserRepository} from './storage/in-memory-user-repository';
-import {BcryptPasswordHasher} from './infrastructure/bcrypt-password-hasher';
+import {BcryptPasswordHasher} from './storage/bcrypt-password-hasher';
 import {RegisterHouseholdUserUseCase} from './application/register-household-user-use-case';
 import {UserController} from './interfaces/restful/user-controller';
 import {DeleteHouseholdUseCase} from './application/delete-household-use-case';
@@ -11,7 +11,7 @@ import {LogoutUserUseCase} from './application/logout-user-use-case';
 import {ChangePasswordUseCase} from './application/change-password-use-case';
 import {ChangeUsernameUseCase} from './application/change-username-use-case';
 import {ResetAdminPasswordUseCase} from './application/reset-admin-password-use-case';
-import {JwtTokenService} from './infrastructure/jwt-token-service';
+import {JwtTokenService} from './storage/jwt-token-service';
 
 // Composition Root
 const userRepository = new InMemoryUserRepository();
