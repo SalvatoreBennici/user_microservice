@@ -1,19 +1,23 @@
 import {type DeleteHouseholdUserPort} from '../domain/ports/delete-household-user-port';
-import {type UserRepository} from '../domain/ports/repositories/user-repository';
+import {type UserRepository} from '../domain/ports/out_/user-repository';
+import {
+	NotHouseholdUserError,
+	UserNotFoundError,
+} from '../domain/errors/errors';
 import {UserRole} from '../domain/user-role';
 
-export class DeleteHouseholdUserService implements DeleteHouseholdUserPort {
+export class DeleteHouseholdUseCase implements DeleteHouseholdUserPort {
 	constructor(private readonly userRepository: UserRepository) {}
 
 	async delete(username: string): Promise<void> {
 		const user = await this.userRepository.findByUsername(username);
 
 		if (!user) {
-			throw new Error('User not found');
+			throw new UserNotFoundError(username);
 		}
 
 		if (user.role !== UserRole.HOUSEHOLD) {
-			throw new Error('User is not a household user');
+			throw new NotHouseholdUserError(username);
 		}
 
 		await this.userRepository.delete(user.id);
