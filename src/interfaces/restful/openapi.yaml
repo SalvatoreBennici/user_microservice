@@ -13,6 +13,8 @@ tags:
     description: Operazioni amministrative sugli utenti
   - name: Testing
     description: Endpoint di test per verificare lo stato del servizio
+  - name: User
+    description: Operazioni utente autenticato
 
 paths:
   /user/register:
@@ -39,6 +41,135 @@ paths:
           description: User successfully registered.
         '500':
           description: Internal server error.
+
+  /user/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Invalid credentials
+        '500':
+          description: Internal server error
+
+  /user/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '204':
+          description: Logged out successfully
+        '500':
+          description: Internal server error
+
+  /user/change-password:
+    post:
+      tags:
+        - User
+      summary: Change own password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '204':
+          description: Password changed
+        '401':
+          description: Invalid credentials
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+  /user/change-username:
+    post:
+      tags:
+        - User
+      summary: Change own username
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentUsername:
+                  type: string
+                newUsername:
+                  type: string
+      responses:
+        '204':
+          description: Username changed
+        '404':
+          description: User not found
+        '409':
+          description: Username taken
+        '500':
+          description: Internal server error
+
+  /user/admin/reset-password:
+    post:
+      tags:
+        - Admin
+      summary: Reset a user's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '204':
+          description: Password reset
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
 
   /user/test:
     get:

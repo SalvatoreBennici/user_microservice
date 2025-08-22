@@ -1,11 +1,27 @@
-import {type UserRepository} from '../../domain/ports/repositories/user-repository';
-import {type UserId} from '../../domain/user-id';
-import {type User} from '../../domain/user';
+import {type UserRepository} from '../domain/ports/out_/user-repository';
+import {type UserId} from '../domain/user-id';
+import {type User} from '../domain/user';
 
 export class InMemoryUserRepository implements UserRepository {
 	private users: User[] = [];
 
 	async save(user: User): Promise<void> {
+		const existingIndex = this.users.findIndex(
+			(u) => u.id.value === user.id.value,
+		);
+		if (existingIndex !== -1) {
+			this.users[existingIndex] = user;
+			return;
+		}
+
+		const byUsernameIndex = this.users.findIndex(
+			(u) => u.username === user.username,
+		);
+		if (byUsernameIndex !== -1) {
+			this.users[byUsernameIndex] = user;
+			return;
+		}
+
 		this.users.push(user);
 	}
 

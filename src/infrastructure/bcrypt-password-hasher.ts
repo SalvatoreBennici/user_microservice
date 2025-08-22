@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import {type PasswordHasher} from '../../domain/ports/password-hasher';
+import {type PasswordHasher} from '../domain/ports/out_/password-hasher';
 
 export class BcryptPasswordHasher implements PasswordHasher {
 	private get saltRounds(): number {
