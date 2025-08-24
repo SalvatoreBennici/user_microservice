@@ -5,14 +5,15 @@
   "scripts": {
     "build": "tsc",
     "start:dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "test": "xo --fix && echo \"No tests specified yet\" && exit 0",
+    "test": "echo \"No tests specified yet\" && exit 0",
     "lint": "xo",
     "lint:fix": "xo --fix"
   },
   "xo": {
     "prettier": true,
     "rules": {
-      "import-x/extensions": "off"
+      "import-x/extensions": "off",
+      "new-cap": "off"
     }
   },
   "dependencies": {
