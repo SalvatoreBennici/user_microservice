@@ -6,7 +6,7 @@ import {
 } from '../domain/errors/errors';
 import {UserRole} from '../domain/user-role';
 
-export class DeleteHouseholdUseCase implements DeleteHouseholdUserPort {
+export class DeleteHouseholdUserUseCase implements DeleteHouseholdUserPort {
 	constructor(private readonly userRepository: UserRepository) {}
 
 	async delete(username: string): Promise<void> {
