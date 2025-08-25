@@ -2,9 +2,12 @@
 node-gradle = "7.0.2"
 gitSemVer = "5.1.3"
 
+[libraries]
+
+
 [plugins]
 node = { id = "com.github.node-gradle.node", version.ref = "node-gradle" }
 gitSemVer  = { id = "org.danilopianini.git-sensitive-semantic-versioning", version.ref = "gitSemVer" }
 
-[libraries]
+
 

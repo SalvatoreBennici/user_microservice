@@ -1,42 +1,81 @@
-import express from 'express';
-import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
-import {InMemoryUserRepository} from './storage/database/in-memory-user-repository';
-import {BcryptPasswordHasher} from './storage/adapters/bcrypt-password-hasher';
-import {RegisterHouseholdUserService} from './application/register-household-user-service';
-import {UserController} from './interfaces/restful/user-controller';
-import {DeleteHouseholdUserService} from './application/delete-household-user-service';
+import express, {
+	type Express,
+	type Request,
+	type Response,
+	NextFunction,
+} from 'express';
+import mongoose from 'mongoose';
+import {MongooseUserRepository} from './storage/mongo/MongooseUserRepository';
+import {UserServiceImpl} from './application/adapter/UserServiceImpl';
+import {UserRoutes} from './interfaces/api/routes/UserRoutes';
+import {AuthServiceImpl} from "./application/adapter/AuthServiceImpl";
+import {JWTService} from "./application/adapter/JWTService";
+import {AuthRoutes} from "./interfaces/api/routes/AuthRoutes";
 
-// Composition Root
-const userRepository = new InMemoryUserRepository();
-const passwordHasher = new BcryptPasswordHasher();
-const registrationService = new RegisterHouseholdUserService(
-    userRepository,
-    passwordHasher,
-);
-const deleteHouseholdUserService = new DeleteHouseholdUserService(
-    userRepository,
-);
+const PORT = process.env.PORT || 3000;
+const MONGO_URI =
+	process.env.MONGO_URI || 'mongodb://localhost:27017/userservice';
 
-// App Setup
-const app = express();
-app.use(express.json());
+async function startApp(): Promise<void> {
+	try {
+		console.log('Starting User Service...');
 
-const swaggerDocument = YAML.load(
-    './src/interfaces/restful/openapi.yaml',
-) as Record<string, unknown>;
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+		// Connect to MongoDB
+		console.log('Connecting to MongoDB...');
+		await mongoose.connect(MONGO_URI);
+		console.log('Connected to MongoDB successfully');
 
-// Routes
-const userController = new UserController(
-    registrationService,
-    deleteHouseholdUserService,
-);
-app.use('/user', userController.router);
+		// Wire up dependencies
+		const userRepository = new MongooseUserRepository();
+		const userService = new UserServiceImpl(userRepository);
 
-// Start
-const port = 3000;
-app.listen(port, () => {
-    console.log(`Server on http://localhost:${port}`);
-    console.log(`API docs on http://localhost:${port}/api-docs`);
-});
+        const authService = new AuthServiceImpl(userRepository, new JWTService());
+
+		// Create Express app
+		const app: Express = express();
+
+		// Middleware
+		app.use(express.json());
+
+		// Health endpoint
+		app.get('/health', (request: Request, res: Response) => {
+			res.json({
+				status: 'OK',
+				timestamp: new Date().toISOString(),
+				service: 'Hexagonal Architecture User Service',
+			});
+		});
+
+		// API routes
+		app.use('/api/users', UserRoutes(userService, authService));
+        app.use('/api/auth', AuthRoutes(authService));
+
+		// Start server
+		const server = app.listen(PORT, () => {
+			console.log('Server is running!');
+			console.log(`Listening on port ${PORT}`);
+			console.log(`Health check: http://localhost:${PORT}/health`);
+			console.log(`Users API: http://localhost:${PORT}/api/users`);
+            console.log(`Users API: http://localhost:${PORT}/api/auth`);
+		});
+
+		// Graceful shutdown
+		const shutdown = async (signal: string) => {
+			console.log(`\nReceived ${signal}. Closing gracefully...`);
+			server.close(async () => {
+				await mongoose.disconnect();
+				console.log('🗄️ Database disconnected');
+				process.exit(0);
+			});
+		};
+
+		process.on('SIGTERM', async () => shutdown('SIGTERM'));
+		process.on('SIGINT', async () => shutdown('SIGINT'));
+	} catch (error) {
+		console.error('Failed to start app:', error);
+		process.exit(1);
+	}
+}
+
+// Start app
+startApp();

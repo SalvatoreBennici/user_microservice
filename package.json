@@ -5,9 +5,9 @@
   "scripts": {
     "build": "tsc",
     "start:dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "test": "xo --fix && echo \"No tests specified yet\" && exit 0",
+    "test": "xo  && echo \"No tests specified yet\" && exit 0",
     "lint": "xo",
-    "lint:fix": "xo --fix"
+    "dev": "ts-node-dev --respawn --transpile-only src/app.ts"
   },
   "xo": {
     "prettier": true,
@@ -20,9 +20,11 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.17.2",
     "reflect-metadata": "^0.2.2",
     "swagger-ui": "^5.27.1",
     "swagger-ui-express": "^5.0.0",
+    "uuid": "^11.1.0",
     "yamljs": "^0.3.0",
     "zod": "^4.0.17"
   },
