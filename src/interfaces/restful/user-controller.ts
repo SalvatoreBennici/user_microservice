@@ -1,13 +1,11 @@
 import {type Request, type Response} from 'express';
 import {type LoginUserPort} from '../../domain/ports/login-user-port';
-import {type LogoutUserPort} from '../../domain/ports/logout-user-port';
 import {type ChangePasswordPort} from '../../domain/ports/change-password-port';
 import {type ChangeUsernamePort} from '../../domain/ports/change-username-port';
 
 export class UserController {
 	constructor(
 		private readonly loginUseCase: LoginUserPort,
-		private readonly logoutUseCase: LogoutUserPort,
 		private readonly changePasswordUseCase: ChangePasswordPort,
 		private readonly changeUsernameUseCase: ChangeUsernamePort,
 	) {}
@@ -27,15 +25,6 @@ export class UserController {
 		}
 	}
 
-	async logout(request: Request, response: Response): Promise<Response> {
-		try {
-			const {token} = request.body as Record<string, string>;
-			await this.logoutUseCase.logout(token);
-			return response.status(204).send();
-		} catch {
-			return response.status(500).json({message: 'Internal server error'});
-		}
-	}
 
 	async changePassword(
 		request: Request,

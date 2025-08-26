@@ -1,9 +1,18 @@
-import {type UserRepository} from '../domain/ports/out_/user-repository';
-import {type UserId} from '../domain/user-id';
-import {type User} from '../domain/user';
+import {UserRepository} from '../domain/ports/out_/user-repository';
+import {UserId} from '../domain/user-id';
+import {User} from '../domain/user';
+import {UserRole} from "../domain/user-role";
+import bcrypt from "bcrypt";
 
 export class InMemoryUserRepository implements UserRepository {
 	private users: User[] = [];
+
+    constructor() {
+        const id = UserId.create();
+        const hash = bcrypt.hashSync('admin', 10);
+        const adminUser = new User(id, 'admin', hash, UserRole.ADMIN);
+        this.users.push(adminUser);
+    }
 
 	async save(user: User): Promise<void> {
 		const existingIndex = this.users.findIndex(

@@ -4,7 +4,6 @@ import {JwtTokenService} from '../storage/jwt-token-service';
 import {RegisterHouseholdUserUseCase} from '../application/register-household-user-use-case';
 import {DeleteHouseholdUserUseCase} from '../application/delete-household-user-use-case';
 import {LoginUserUseCase} from '../application/login-user-use-case';
-import {LogoutUserUseCase} from '../application/logout-user-use-case';
 import {ChangePasswordUseCase} from '../application/change-password-use-case';
 import {ChangeUsernameUseCase} from '../application/change-username-use-case';
 import {ResetAdminPasswordUseCase} from '../application/reset-admin-password-use-case';
@@ -28,7 +27,6 @@ export const loginUserUseCase = new LoginUserUseCase(
 	tokenService,
 );
 
-export const logoutUserUseCase = new LogoutUserUseCase(tokenService);
 
 export const changePasswordUseCase = new ChangePasswordUseCase(
 	userRepository,

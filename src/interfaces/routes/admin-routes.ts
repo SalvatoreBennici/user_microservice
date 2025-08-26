@@ -1,36 +1,44 @@
 import express from 'express';
 import {AdminController} from '../restful/admin-controller';
-import {
-	registerHouseholdUserUseCase,
-	deleteHouseholdUserUseCase,
-	resetAdminPasswordUseCase,
-} from '../dependencies';
+import {deleteHouseholdUserUseCase, registerHouseholdUserUseCase, resetAdminPasswordUseCase,} from '../dependencies';
+import {authenticateToken, authorizeRole} from "../../presentation/middleware/auth-middleware";
+import {UserRole} from "../../domain/user-role";
+
 
 const router = express.Router();
 
 const adminController = new AdminController(
-	resetAdminPasswordUseCase,
-	registerHouseholdUserUseCase,
-	deleteHouseholdUserUseCase,
+    resetAdminPasswordUseCase,
+    registerHouseholdUserUseCase,
+    deleteHouseholdUserUseCase,
 );
 
-// User management
 router.post(
-	'/users/register',
-	adminController.registerHouseholdUser.bind(adminController),
+    '/register',
+    authenticateToken,
+    authorizeRole(UserRole.ADMIN),
+    adminController.registerHouseholdUser.bind(adminController),
 );
 
 router.delete(
-	'/users/:username',
-	adminController.deleteHouseholdUser.bind(adminController),
+    '/:username',
+    authenticateToken,
+    authorizeRole(UserRole.ADMIN),
+    adminController.deleteHouseholdUser.bind(adminController),
 );
 
 router.post(
-	'/users/reset-password',
-	adminController.resetPassword.bind(adminController),
+    '/reset-password',
+    authenticateToken,
+    authorizeRole(UserRole.ADMIN),
+    adminController.resetPassword.bind(adminController),
 );
 
-// Test endpoint
-router.get('/test', adminController.test.bind(adminController));
+router.get(
+    '/test',
+    //authenticateToken,
+    //authorizeRole(UserRole.ADMIN, UserRole.HOUSEHOLD),
+    adminController.test.bind(adminController)
+);
 
 export default router;

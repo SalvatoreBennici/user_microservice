@@ -27,7 +27,6 @@ export class LoginUserUseCase implements LoginUserPort {
 
 		const token = await this.tokenService.issueToken({
 			userId: user.id.value,
-			username: user.username,
 			role: user.role,
 		});
 		return {token};

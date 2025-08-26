@@ -8,7 +8,6 @@ import {
 export class JwtTokenService implements TokenService {
 	private readonly secret: string;
 	private readonly expiration: string | number;
-	private readonly revokedTokens = new Set<string>();
 
 	constructor(
 		secret = process.env.JWT_SECRET ?? 'secret',
@@ -31,10 +30,6 @@ export class JwtTokenService implements TokenService {
 	}
 
 	async verifyToken(token: string): Promise<TokenPayload> {
-		if (this.revokedTokens.has(token)) {
-			throw new Error('Token revoked');
-		}
-
 		try {
 			const decoded = jwt.verify(token, this.secret) as
 				| JwtPayload
@@ -50,7 +45,4 @@ export class JwtTokenService implements TokenService {
 		}
 	}
 
-	async revokeToken(token: string): Promise<void> {
-		this.revokedTokens.add(token);
-	}
 }

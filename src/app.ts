@@ -11,7 +11,7 @@ const swaggerDocument = YAML.load(
 ) as Record<string, unknown>;
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.use('/api', routes);
+app.use(routes);
 
 const port = 3000;
 app.listen(port, () => {

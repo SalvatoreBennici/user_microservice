@@ -17,11 +17,13 @@ tags:
     description: Operazioni utente autenticato
 
 paths:
-  /user/register:
+  /admin/register:
     post:
       tags:
         - Authentication
       summary: Register a new user
+      security:
+        - bearerAuth: []
       description: Creates a new user account in the system using a username and password.
       requestBody:
         required: true
@@ -42,7 +44,7 @@ paths:
         '500':
           description: Internal server error.
 
-  /user/login:
+  /users/login:
     post:
       tags:
         - Authentication
@@ -73,31 +75,13 @@ paths:
         '500':
           description: Internal server error
 
-  /user/logout:
-    post:
-      tags:
-        - Authentication
-      summary: Logout user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                token:
-                  type: string
-      responses:
-        '204':
-          description: Logged out successfully
-        '500':
-          description: Internal server error
-
-  /user/change-password:
+  /users/change-password:
     post:
       tags:
         - User
       summary: Change own password
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -121,11 +105,13 @@ paths:
         '500':
           description: Internal server error
 
-  /user/change-username:
+  /users/change-username:
     post:
       tags:
         - User
       summary: Change own username
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -147,11 +133,13 @@ paths:
         '500':
           description: Internal server error
 
-  /user/admin/reset-password:
+  /admin/reset-password:
     post:
       tags:
         - Admin
-      summary: Reset a user's password
+      summary: Reset admin's password
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -171,7 +159,7 @@ paths:
         '500':
           description: Internal server error
 
-  /user/test:
+  /admin/test:
     get:
       tags:
         - Testing
@@ -188,11 +176,13 @@ paths:
         '500':
           description: Internal server error.
 
-  /user/{username}:
+  /admin/{username}:
     delete:
       tags:
         - Admin
       summary: Delete a household user
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: username
@@ -209,3 +199,15 @@ paths:
           description: Bad request.
         '500':
           description: Internal server error.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Unauthorized:
+      description: Access token is missing or invalid
+    Forbidden:
+      description: User does not have permissions to perform this action
