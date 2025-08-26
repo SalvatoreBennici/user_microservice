@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 export class InMemoryUserRepository implements UserRepository {
 	private users: User[] = [];
 
+    // TECH-DEBT: This is a temporary solution.
     constructor() {
         const id = UserId.create();
         const hash = bcrypt.hashSync('admin', 10);
