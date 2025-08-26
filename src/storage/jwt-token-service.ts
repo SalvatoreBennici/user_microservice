@@ -7,12 +7,18 @@ import {
 
 export class JwtTokenService implements TokenService {
 	private readonly secret: string;
-	private readonly expiration: string | number;
+	private readonly expiration: string;
 
 	constructor(
-		secret = process.env.JWT_SECRET ?? 'secret',
-		expiration: string | number = '1h',
+		secret = process.env.JWT_SECRET,
+		expiration = process.env.JWT_EXPIRATION,
 	) {
+        if (!secret) {
+            throw new Error('JWT_SECRET must be defined in the .env file');
+        }
+        if (!expiration) {
+            throw new Error('JWT_EXPIRATION must be defined in the .env file');
+        }
 		this.secret = secret;
 		this.expiration = expiration;
 	}
