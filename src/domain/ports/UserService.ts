@@ -2,9 +2,12 @@ import {type UserID} from '../UserID';
 import {type User} from '../User';
 
 export type UserService = {
+    getHouseholdUsers(): Promise<User[]>;
 	getUser(id: UserID): Promise<User | null>;
-	updateUsername(id: UserID, username: string): Promise<User>;
+	updateHouseholdUsername(id: UserID, username: string): Promise<User>;
 	updatePassword(id: UserID, password: string): Promise<User>;
-	createUser(username: string, password: string): Promise<User>;
+	createHouseholdUser(username: string, password: string): Promise<User>;
 	deleteUser(id: UserID): Promise<void>;
+    resetAdminPassword(resetCode: string, password: string): Promise<User>;
+
 };

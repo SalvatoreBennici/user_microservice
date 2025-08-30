@@ -2,6 +2,10 @@ import {type Request, type Response} from 'express';
 
 import {AuthService} from "../../../domain/ports/AuthService";
 import {AccessTokenMapper} from "../../../presentation/AccessTokenMapper";
+import {AuthenticatedRequest} from "../middleware/AuthenticatedRequest";
+import {InvalidRequest} from "../errors/InvalidRequest";
+import {FieldRequiredError} from "../errors/FieldRequired";
+import {InvalidCredentials} from "../../../domain/errors/InvalidCredentials";
 
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
@@ -12,12 +16,12 @@ export class AuthController {
             const {password} = request.body;
 
             if (!username) {
-                res.status(400).json({error: 'Username is required'});
+                res.status(400).json(FieldRequiredError("Username"));
                 return;
             }
 
             if (!password) {
-                res.status(400).json({error: 'Password is required'});
+                res.status(400).json(FieldRequiredError("Password"));
                 return;
             }
 
@@ -25,8 +29,12 @@ export class AuthController {
 
             res.status(200).json(AccessTokenMapper.toDTO(token));
 
-        } catch {
-            res.status(400).json({error: 'Invalid request'});
+        } catch (error) {
+            if (error instanceof InvalidCredentials) {
+                res.status(422).json({ error: error.message });
+            }
+
+            res.status(400).json(InvalidRequest);
         }
     }
 
@@ -41,6 +49,8 @@ export class AuthController {
             return;
         }
 
+        console.log(token)
+
         await this.authService.logout(token);
 
         res.status(200).json({
@@ -52,11 +62,8 @@ export class AuthController {
         try {
             const { refreshToken } = request.body;
 
-            console.log(refreshToken)
-
-
             if (!refreshToken) {
-                res.status(400).json({ error: "Refresh token is required" });
+                res.status(400).json(FieldRequiredError("Refresh token"));
                 return;
             }
 
@@ -64,14 +71,14 @@ export class AuthController {
 
             res.status(200).json(AccessTokenMapper.toDTO(token));
         }
-        catch (error) {
-            res.status(400).json({error});
+        catch {
+            res.status(400).json(InvalidRequest);
         }
 
     }
 
     async whoami(request: Request, res: Response): Promise<void> {
-        const user = (request as any).user
+        const user = (request as AuthenticatedRequest).user
 
         if (!user) {
             res.status(401).json({ error: "Not authenticated" });

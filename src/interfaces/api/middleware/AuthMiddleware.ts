@@ -1,6 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {AuthService} from "../../../domain/ports/AuthService";
 import {AuthenticatedRequest} from "./AuthenticatedRequest";
+import {UserID} from "../../../domain/UserID";
 
 
 export class AuthMiddleware {
@@ -48,7 +49,7 @@ export class AuthMiddleware {
 
     requireRole(role: string) {
         return (req: Request, res: Response, next: NextFunction): void => {
-            const user = (req as any).user;
+            const user = (req as AuthenticatedRequest).user;
 
             if (!user) {
                 res.status(401).json({
@@ -66,5 +67,26 @@ export class AuthMiddleware {
 
             next();
         };
+    }
+
+    requireOwnershipOrAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const user = (req as AuthenticatedRequest).user
+        const id = req.params.id;
+
+
+        if (!user) {
+            res.status(401).json({ error: 'Authentication required' });
+            return;
+        }
+
+        if (user.role === 'ADMIN') {
+            return next();
+        }
+
+        if (user.id.value == id) {
+            return next();
+        }
+
+        res.status(403).json({ error: 'Forbidden' });
     }
 }

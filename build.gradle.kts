@@ -41,27 +41,16 @@ val npmBuild = tasks.register<NpmTask>("npmBuild") {
     args.set(listOf("run", "build"))
 }
 
-//val npmTest = tasks.register<NpmTask>("npmTest") {
-//    group = "verification"
-//    description = "Runs the tests"
-//    dependsOn(npmBuild)
-//    args.set(listOf("run", "test"))
-//}
-
 tasks.register<NpmTask>("runDev") {
     group = "application"
     description = "Runs the application in development mode"
-//    dependsOn(npmBuild)
+
     args.set(listOf("run", "dev"))
 }
 
 tasks.named("build") {
     dependsOn(npmBuild)
 }
-
-//tasks.named("check") {
-//    dependsOn(npmTest)
-//}
 
 tasks.named<Delete>("clean") {
     description = "Deletes node_modules, dist, and .gradle directories"

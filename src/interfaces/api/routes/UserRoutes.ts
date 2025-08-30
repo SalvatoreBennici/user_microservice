@@ -10,19 +10,15 @@ export function UserRoutes(userService: UserService, authService: AuthService): 
 	const userController = new UserController(userService);
     const authMiddleware = new AuthMiddleware(authService);
 
-    // Create new household user
-	router.post('/household/', authMiddleware.authenticate, authMiddleware.requireRole(UserRole.ADMIN), userController.createUser.bind(userController));
 
-	router.get('/:id', userController.getUser.bind(userController));
-	router.put(
-		'/:id/username',
-		userController.updateUsername.bind(userController),
-	);
-	router.put(
-		'/:id/password',
-		userController.updatePassword.bind(userController),
-	);
-	router.delete('/:id', userController.deleteUser.bind(userController));
+    router.get('/:id', authMiddleware.authenticate, userController.getUser.bind(userController));
+
+    router.put(
+    	'/:id/password',
+        authMiddleware.authenticate,
+        authMiddleware.requireOwnershipOrAdmin,
+    	userController.updatePassword.bind(userController),
+    );
 
 	return router;
 }

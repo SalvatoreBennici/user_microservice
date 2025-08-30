@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 
 export class JWTService implements TokenService {
     private static readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-    private static readonly JWT_EXPIRES_IN = '8h';
+    private static readonly JWT_EXPIRES_IN = '1y';
     private static readonly REFRESH_EXPIRES_IN = '7d';
 
     private generateJWT(payload: AccessTokenPayload, expirationTime: any): string{

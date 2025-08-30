@@ -6,6 +6,7 @@ import {compare as comparePassword} from 'bcrypt';
 import {TokenService} from "../port/TokenService";
 import {AccessToken} from "../../domain/AccessToken";
 import {AccessTokenPayload} from "../port/AccessTokenPayload";
+import {InvalidCredentials} from "../../domain/errors/InvalidCredentials";
 
 
 export class AuthServiceImpl implements AuthService {
@@ -16,17 +17,18 @@ export class AuthServiceImpl implements AuthService {
     }
 
     async login(username: string, password: string): Promise<AccessToken> {
-        const user = await this.userRepository.findByUsername(username);
+        const user = await this.userRepository.findUserByUsername(username.toLowerCase());
+
         if (!user) {
-            throw new Error('Invalid credentials');
+            throw new InvalidCredentials();
         }
 
         const isPasswordValid = await comparePassword(password, user.password);
+
         if (!isPasswordValid) {
-            throw new Error('Invalid credentials');
+            throw new InvalidCredentials();
         }
 
-        // issue token
         const userPayload: AccessTokenPayload = {
             id: user.id,
             username: user.username,
@@ -37,11 +39,16 @@ export class AuthServiceImpl implements AuthService {
         const refreshToken = await this.tokenService.generateRefreshToken(userPayload);
 
         return {accessToken: accessToken, refreshToken: refreshToken}
-
     }
 
     async logout(username: string): Promise<void> {
-        const user = await this.userRepository.findByUsername(username);
+        const payload = await this.tokenService.verifyToken(username)
+
+        if (!payload) {
+            throw new Error("Invalid refresh token");
+        }
+        const userPayload: AccessTokenPayload = {id: payload.id, username: payload.username, role: payload.role}
+        const user = await this.userRepository.findUserByUsername(userPayload.username);
         if (!user) {
             throw new Error('User not found');
         }
@@ -60,7 +67,6 @@ export class AuthServiceImpl implements AuthService {
         const refreshToken = await this.tokenService.generateRefreshToken(userPayload);
 
         return {accessToken: accessToken, refreshToken: refreshToken}
-
     }
 
     async verify(token: string): Promise<User | null> {

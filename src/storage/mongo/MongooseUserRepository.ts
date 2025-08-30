@@ -6,24 +6,49 @@ import {UserID} from '../../domain/UserID';
 import {UserModel} from './mongoose/UserSchema';
 import {type UserDocument} from './mongoose/UserDocument';
 import {UserRole} from "../../domain/UserRole";
+import {ConflictError} from "../../domain/errors/ConflictError";
+import {NotFoundError} from "../../domain/errors/NotFoundError";
 
 export class MongooseUserRepository implements UserRepository {
-    async findByUsername(username: string): Promise<User | null> {
+    async getHouseholdUsers(): Promise<User[]> {
+        const userDocuments = await UserModel.find({ role: UserRole.HOUSEHOLD }).lean().exec();
+        return userDocuments.map((userDoc) =>
+            this.mapUserDocumentToDomain(userDoc),
+        );
+    }
+
+    async findUserByUsername(username: string): Promise<User | null> {
         try {
             const userDocument = await UserModel.findOne({ username }).exec();
             return userDocument ? this.mapUserDocumentToDomain(userDocument) : null;
         } catch (error) {
-            console.error('Error finding user by username:', error);
             return null;
         }
     }
 
-    async getAllHouseholdUsers(): Promise<User[]> {
-		const userDocuments = await UserModel.find({ role: UserRole.HOUSEHOLD }).lean().exec();
-		return userDocuments.map((userDoc) =>
-			this.mapUserDocumentToDomain(userDoc),
-		);
-	}
+    async addNewHouseholdUser(user: User): Promise<User> {
+        const id = uuidv4();
+
+        // if (user.role != UserRole.HOUSEHOLD) {
+        //     throw new ForbiddenError('Cannot create user')
+        // }
+
+        const userDocument = new UserModel({
+            _id: id,
+            username: user.username,
+            password: user.password,
+            role: user.role,
+        });
+
+        try{
+            return this.mapUserDocumentToDomain(await userDocument.save());
+        }catch (error: any) {
+            if (error.code === 11000) {
+                throw new ConflictError('Username '+user.username+' already exists');
+            }
+            throw error;
+        }
+    }
 
 	async findUserById(id: UserID): Promise<User | null> {
 		this.validateUserID(id.value);
@@ -50,27 +75,10 @@ export class MongooseUserRepository implements UserRepository {
 		).exec();
 
 		if (!updatedDocument) {
-			throw new Error('User not found for update');
+			throw new NotFoundError('User not found for update');
 		}
 
 		return this.mapUserDocumentToDomain(updatedDocument);
-	}
-
-	async addNewUser(user: User): Promise<User> {
-		const id = uuidv4();
-
-		console.log(id);
-
-		const userDocument = new UserModel({
-			_id: id,
-			username: user.username,
-			password: user.password,
-			role: user.role,
-		});
-
-		const savedDocument = await userDocument.save();
-
-		return this.mapUserDocumentToDomain(savedDocument);
 	}
 
 	async removeUser(user: User): Promise<void> {
@@ -78,7 +86,7 @@ export class MongooseUserRepository implements UserRepository {
 
 		const result = await UserModel.findByIdAndDelete(user.id.value).exec();
 		if (!result) {
-			throw new Error('User not found for deletion');
+			throw new NotFoundError('User not found for deletion');
 		}
 	}
 
