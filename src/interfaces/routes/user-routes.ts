@@ -1,6 +1,6 @@
 import express from 'express';
 import {UserController} from '../restful/user-controller';
-import {authenticateToken, authorizeRole} from "../../presentation/middleware/auth-middleware";
+import {authenticateToken, authorizeRole} from "../middleware/auth-middleware";
 
 import {changePasswordUseCase, changeUsernameUseCase, loginUserUseCase,} from '../dependencies';
 import {UserRole} from "../../domain/user-role";

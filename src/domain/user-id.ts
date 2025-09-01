@@ -11,7 +11,11 @@ export class UserId {
 		this._value = value;
 	}
 
-	get value(): string {
+    public static from(value: string): UserId {
+        return new UserId(value);
+    }
+
+    get value(): string {
 		return this._value;
 	}
 }

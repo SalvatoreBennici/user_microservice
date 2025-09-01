@@ -1,7 +1,7 @@
 import express from 'express';
 import {AdminController} from '../restful/admin-controller';
 import {deleteHouseholdUserUseCase, registerHouseholdUserUseCase, resetAdminPasswordUseCase,} from '../dependencies';
-import {authenticateToken, authorizeRole} from "../../presentation/middleware/auth-middleware";
+import {authenticateToken, authorizeRole} from "../middleware/auth-middleware";
 import {UserRole} from "../../domain/user-role";
 
 

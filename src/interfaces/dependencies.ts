@@ -7,8 +7,9 @@ import {LoginUserUseCase} from '../application/login-user-use-case';
 import {ChangePasswordUseCase} from '../application/change-password-use-case';
 import {ChangeUsernameUseCase} from '../application/change-username-use-case';
 import {ResetAdminPasswordUseCase} from '../application/reset-admin-password-use-case';
+import {MongoUserRepository} from "../storage/mongodb-user-repository";
 
-export const userRepository = new InMemoryUserRepository();
+export const userRepository = new MongoUserRepository();
 export const passwordHasher = new BcryptPasswordHasher();
 export const tokenService = new JwtTokenService();
 

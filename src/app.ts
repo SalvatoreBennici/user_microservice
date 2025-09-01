@@ -1,23 +1,42 @@
+import 'dotenv/config'
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
-import routes from './interfaces/routes';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import routes from './interfaces/routes/routes';
+import mongoose from "mongoose";
+import {MongoUserRepository} from "./storage/mongodb-user-repository";
 
 const app = express();
 app.use(express.json());
 
-const swaggerDocument = YAML.load(
-	'./src/interfaces/restful/openapi.yaml',
-) as Record<string, unknown>;
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const startServer = async () => {
+    try {
+        if (!process.env.MONGO_URL) {
+            console.error('Failed to start server: MONGO_URL is not defined in the environment.');
+            process.exit(1);
+        }
 
-app.use(routes);
+        await mongoose.connect(process.env.MONGO_URL);
+        console.log('Connected to MongoDB.');
+        await MongoUserRepository.initializeAdminUser();
 
-const port = 3000;
-app.listen(port, () => {
-	console.log(`Server on http://localhost:${port}`);
-	console.log(`API docs on http://localhost:${port}/api-docs`);
-});
+        // Load Swagger documentation and set up routes and server listener
+        const swaggerDocument = YAML.load(
+            './src/interfaces/restful/openapi.yaml',
+        ) as Record<string, unknown>;
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+        app.use(routes);
+
+        app.listen(process.env.PORT, () => {
+            console.log(`Server on http://localhost:${process.env.PORT}`);
+            console.log(`API docs on http://localhost:${process.env.PORT}/api-docs`);
+        });
+
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+startServer();
