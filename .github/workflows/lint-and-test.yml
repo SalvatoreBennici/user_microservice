@@ -2,6 +2,10 @@ name: Lint and Test on Push
 
 on:
   push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   lint-and-test:
@@ -20,6 +24,7 @@ jobs:
         run: |
           NODE_VER=$(grep -Po 'version\.set\("\K[0-9]+\.[0-9]+\.[0-9]+' build.gradle.kts)
           echo "node_version=$NODE_VER" >> $GITHUB_OUTPUT
+          echo "Node version: $NODE_VER"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
