@@ -15,10 +15,18 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Get Node.js version from Gradle build file
+        id: node_version
+        run: |
+          NODE_VER=$(grep -Po 'version\.set\("\K[0-9]+\.[0-9]+\.[0-9]+' build.gradle.kts)
+          echo "node_version=$NODE_VER" >> $GITHUB_OUTPUT
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.13.1
+          node-version: ${{ steps.node_version.outputs.node_version }}
+          cache: 'npm'  # Built-in npm caching
+          cache-dependency-path: package-lock.json
 
       - name: Install Root Dependencies
         run: npm ci
@@ -28,7 +36,6 @@ jobs:
         id: lint
         run: npx xo > lint-report.txt || true
 
-      # not sure if the lint gives an empty file when successful
       - name: Check if lint report is empty
         id: check_empty_lint
         run: |
