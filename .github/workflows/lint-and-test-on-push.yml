@@ -1,0 +1,66 @@
+name: Lint and Test on Push
+
+on:
+  push:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.1
+
+      - name: Install Root Dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Execute Lint
+        id: lint
+        run: npx xo > lint-report.txt || true
+
+      # not sure if the lint gives an empty file when successful
+      - name: Check if lint report is empty
+        id: check_empty_lint
+        run: |
+          if [ ! -s lint-report.txt ]; then
+            echo "No linting issues found." > lint-report.txt
+          fi
+
+      - name: Upload ESLint Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: lint-report.txt
+
+      - name: Execute Tests
+        id: test
+        run: npm run test > test-report.txt
+
+      - name: Check if Test report is empty
+        id: check_empty_test
+        run: |
+          if [ ! -s app/reports/test-report.txt ]; then
+            echo "No test issues found." > app/reports/test-report.txt
+          fi
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report.txt
+
+      - name: Fail if tests failed
+        if: failure()
+        run: exit 1
