@@ -62,8 +62,8 @@ jobs:
       - name: Check if Test report is empty
         id: check_empty_test
         run: |
-          if [ ! -s app/reports/test-report.txt ]; then
-            echo "No test issues found." > app/reports/test-report.txt
+          if [ ! -s test-report.txt ]; then
+            echo "No test issues found." > test-report.txt
           fi
 
       - name: Upload Test Report
