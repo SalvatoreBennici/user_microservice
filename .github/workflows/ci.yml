@@ -1,4 +1,4 @@
-name: Lint and Test on Push
+name: CI/CD
 
 on:
   push:
@@ -7,11 +7,39 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+
+env:
+  NODE_DEFAULT_VERSION: "20.11.1"
+
 jobs:
-  lint-and-test:
+  setup:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    outputs:
+      node-version: ${{ steps.node_version.outputs.version }}
+      repository-lowercase: ${{ steps.repo_name.outputs.lowercase }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Extract Node.js version
+        id: node_version
+        run: |
+          NODE_VER=$(grep -Po 'version\.set\("\K[0-9]+\.[0-9]+\.[0-9]+' build.gradle.kts || echo "$NODE_DEFAULT_VERSION")
+          echo "version=$NODE_VER" >> $GITHUB_OUTPUT
+
+      - name: Convert repository name to lowercase
+        id: repo_name
+        run: echo "lowercase=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+  quality-checks:
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix:
+        task: [ lint, test ]
+      fail-fast: false
 
     steps:
       - name: Checkout Repository
@@ -19,63 +47,89 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Get Node.js version from Gradle build file
-        id: node_version
-        run: |
-          NODE_VER=$(grep -Po 'version\.set\("\K[0-9]+\.[0-9]+\.[0-9]+' build.gradle.kts)
-          echo "node_version=$NODE_VER" >> $GITHUB_OUTPUT
-          if [ -z "$NODE_VER" ]; then
-            NODE_VER="20.11.1"
-          fi
-          echo "Node version: $NODE_VER"
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ steps.node_version.outputs.node_version }}
+          node-version: ${{ needs.setup.outputs.node-version }}
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - name: Install Root Dependencies
+      - name: Install Dependencies
         run: npm ci
-        working-directory: .
 
-      - name: Execute Lint
-        id: lint
-        run: npx xo > lint-report.txt || true
-
-      - name: Check if lint report is empty
-        id: check_empty_lint
+      - name: Run Linting
+        if: matrix.task == 'lint'
         run: |
+          npx xo > lint-report.txt 2>&1 || echo "Linting completed with issues"
           if [ ! -s lint-report.txt ]; then
             echo "No linting issues found." > lint-report.txt
           fi
 
-      - name: Upload ESLint Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-report
-          path: lint-report.txt
-
-      - name: Execute Tests
-        id: test
-        run: npm run test > test-report.txt
-
-      - name: Check if Test report is empty
-        id: check_empty_test
+      - name: Run Tests
+        if: matrix.task == 'test'
         run: |
+          npm run test > test-report.txt 2>&1
+          TEST_EXIT_CODE=$?
           if [ ! -s test-report.txt ]; then
-            echo "No test issues found." > test-report.txt
+            echo "All tests passed successfully." > test-report.txt
+          fi
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "Tests failed with exit code $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
           fi
 
-      - name: Upload Test Report
+      - name: Upload Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-report
-          path: test-report.txt
+          name: ${{ matrix.task }}-report
+          path: ${{ matrix.task }}-report.txt
+          retention-days: 30
 
-      - name: Fail if tests failed
-        if: failure()
-        run: exit 1
+  docker:
+    runs-on: ubuntu-latest
+    needs: [setup, quality-checks]
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ needs.setup.outputs.repository-lowercase }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Verify Docker Image
+        run: docker pull ghcr.io/${{ needs.setup.outputs.repository-lowercase }}:latest
