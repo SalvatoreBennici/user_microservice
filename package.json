@@ -40,5 +40,18 @@
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2",
     "xo": "^1.2.2"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "preset": "conventionalcommits",
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
   }
 }
