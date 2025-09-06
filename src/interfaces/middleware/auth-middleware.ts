@@ -3,13 +3,12 @@ import { type TokenPayload } from "../../domain/ports/out_/token-service";
 import { JwtTokenService } from "../../storage/jwt-token-service";
 import { type UserRole } from "../../domain/user-role";
 
-declare global {
-  namespace Express {
+declare module 'express-serve-static-core' {
     interface Request {
-      user?: TokenPayload;
+        user?: TokenPayload;
     }
-  }
 }
+
 
 const tokenService = new JwtTokenService();
 

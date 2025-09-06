@@ -14,5 +14,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "removeComments": false
-  }
+  },
+  "include": ["src"]
 }

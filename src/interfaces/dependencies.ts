@@ -1,4 +1,3 @@
-import { InMemoryUserRepository } from "../storage/in-memory-user-repository";
 import { BcryptPasswordHasher } from "../storage/bcrypt-password-hasher";
 import { JwtTokenService } from "../storage/jwt-token-service";
 import { RegisterHouseholdUserUseCase } from "../application/register-household-user-use-case";
