@@ -1,7 +1,7 @@
 export type ChangePasswordPort = {
-	changePassword(
-		username: string,
-		oldPassword: string,
-		newPassword: string,
-	): Promise<void>;
+  changePassword(
+    username: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void>;
 };

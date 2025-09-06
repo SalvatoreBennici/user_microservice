@@ -1,43 +1,43 @@
-import {type UserId} from './user-id';
-import {type UserRole} from './user-role';
+import { type UserId } from "./user-id";
+import { type UserRole } from "./user-role";
 
 export class User {
-	constructor(
-		private readonly _id: UserId,
-		private _username: string,
-		private _passwordHash: string,
-		private readonly _role: UserRole,
-	) {}
+  constructor(
+    private readonly _id: UserId,
+    private _username: string,
+    private _passwordHash: string,
+    private readonly _role: UserRole,
+  ) {}
 
-	get id(): UserId {
-		return this._id;
-	}
+  get id(): UserId {
+    return this._id;
+  }
 
-	get username(): string {
-		return this._username;
-	}
+  get username(): string {
+    return this._username;
+  }
 
-	public changeUsername(newUsername: string): void {
-		if (!newUsername) {
-			throw new Error('Username cannot be empty.');
-		}
+  public changeUsername(newUsername: string): void {
+    if (!newUsername) {
+      throw new Error("Username cannot be empty.");
+    }
 
-		this._username = newUsername;
-	}
+    this._username = newUsername;
+  }
 
-	public async changePasswordHash(newPasswordHash: string): Promise<void> {
-		if (!newPasswordHash) {
-			throw new Error('PasswordHash cannot be empty.');
-		}
+  public async changePasswordHash(newPasswordHash: string): Promise<void> {
+    if (!newPasswordHash) {
+      throw new Error("PasswordHash cannot be empty.");
+    }
 
-		this._passwordHash = newPasswordHash;
-	}
+    this._passwordHash = newPasswordHash;
+  }
 
-	get passwordHash(): string {
-		return this._passwordHash;
-	}
+  get passwordHash(): string {
+    return this._passwordHash;
+  }
 
-	get role(): UserRole {
-		return this._role;
-	}
+  get role(): UserRole {
+    return this._role;
+  }
 }

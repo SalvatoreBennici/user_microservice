@@ -1,3 +1,3 @@
 export type RegisterHouseholdUserPort = {
-	register(username: string, password: string): Promise<void>;
+  register(username: string, password: string): Promise<void>;
 };

@@ -1,3 +1,3 @@
 export type LogoutUserPort = {
-	logout(token: string): Promise<void>;
+  logout(token: string): Promise<void>;
 };
