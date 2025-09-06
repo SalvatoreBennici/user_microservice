@@ -147,7 +147,7 @@ jobs:
         run: docker pull ghcr.io/${{ needs.setup.outputs.repository-lowercase }}:latest
 
   release:
-    needs: [setup, build]
+    needs: [setup, build, quality-checks]
     runs-on: ubuntu-latest
     permissions:
       contents: write
