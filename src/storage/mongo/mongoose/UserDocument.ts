@@ -1,5 +1,5 @@
-import {type Document} from 'mongoose';
-import {type UserRole} from '../../../domain/UserRole';
+import {type Document} from "mongoose";
+import {type UserRole} from "../../../domain/UserRole";
 
 export interface UserDocument extends Document {
 	readonly _id: string;

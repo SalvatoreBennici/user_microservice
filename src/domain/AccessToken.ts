@@ -1,5 +1,5 @@
 
-export type AccessToken = {
+export interface AccessToken {
     accessToken: string;
     refreshToken: string;
-};
+}

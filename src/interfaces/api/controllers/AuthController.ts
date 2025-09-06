@@ -1,4 +1,4 @@
-import {type Request, type Response} from 'express';
+import {type Request, type Response} from "express";
 
 import {AuthService} from "../../../domain/ports/AuthService";
 import {AccessTokenMapper} from "../../../presentation/AccessTokenMapper";
@@ -8,9 +8,9 @@ import {FieldRequiredError} from "../errors/FieldRequired";
 import {InvalidCredentials} from "../../../domain/errors/InvalidCredentials";
 
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor (private readonly authService: AuthService) {}
 
-    async login(request: Request, res: Response): Promise<void> {
+    async login (request: Request, res: Response): Promise<void> {
         try {
             const {username} = request.body;
             const {password} = request.body;
@@ -38,27 +38,27 @@ export class AuthController {
         }
     }
 
-    async logout(request: Request, res: Response): Promise<void> {
+    async logout (request: Request, res: Response): Promise<void> {
         const authHeader = request.headers.authorization;
-        const token = authHeader?.split(' ')[1]; // Extract token from "Bearer <token>"
+        const token = authHeader?.split(" ")[1]; // Extract token from "Bearer <token>"
 
         if (!token) {
             res.status(400).json({
-                error: 'Token is required'
+                error: "Token is required"
             });
             return;
         }
 
-        console.log(token)
+        console.log(token);
 
         await this.authService.logout(token);
 
         res.status(200).json({
-            message: 'Logout successful'
+            message: "Logout successful"
         });
     }
 
-    async refresh(request: Request, res: Response): Promise<void> {
+    async refresh (request: Request, res: Response): Promise<void> {
         try {
             const { refreshToken } = request.body;
 
@@ -77,8 +77,8 @@ export class AuthController {
 
     }
 
-    async whoami(request: Request, res: Response): Promise<void> {
-        const user = (request as AuthenticatedRequest).user
+    async whoami (request: Request, res: Response): Promise<void> {
+        const user = (request as AuthenticatedRequest).user;
 
         if (!user) {
             res.status(401).json({ error: "Not authenticated" });
@@ -86,7 +86,7 @@ export class AuthController {
         }
 
         res.status(200).json({
-            message: 'hello',
+            message: "hello",
             user: {
                 id: user.id.value,
                 username: user.username,

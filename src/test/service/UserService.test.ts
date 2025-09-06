@@ -1,12 +1,9 @@
-import {describe, it, expect, beforeAll, beforeEach,} from "vitest";
+import {beforeAll, beforeEach, describe, expect, it,} from "vitest";
 import {UserService} from "../../domain/ports/UserService";
 import {InMemoryUserRepository} from "../storage/InMemoryUserRepository";
 import {UserServiceImpl} from "../../application/adapter/UserServiceImpl";
-import type {User} from "../../domain/User";
-import type {UserID} from "../../domain/UserID";
 import {mockHouseholdUserMarco} from "../storage/MockUsers";
 import {UserRole} from "../../domain/UserRole";
-import {ConflictError} from "../../domain/errors/ConflictError";
 
 
 // getUser(id: UserID): Promise<User | null>;
@@ -16,44 +13,44 @@ import {ConflictError} from "../../domain/errors/ConflictError";
 // deleteUser(id: UserID): Promise<void>;
 // resetAdminPassword(resetCode: string, password: string): Promise<User>;
 
-describe('UserService', () => {
+describe("UserService", () => {
     let userService: UserService;
-    let repository: InMemoryUserRepository
+    let repository: InMemoryUserRepository;
 
     beforeAll(() => {
-        repository = new InMemoryUserRepository()
-        userService = new UserServiceImpl(repository)
+        repository = new InMemoryUserRepository();
+        userService = new UserServiceImpl(repository);
     });
 
-    describe('getHouseholdUsers', () =>{
+    describe("getHouseholdUsers", () => {
         beforeAll(() => {
-            repository.clear()
-        })
+            repository.clear();
+        });
 
-        it('should return the household users from the repository', async () => {
+        it("should return the household users from the repository", async () => {
             await repository.addNewHouseholdUser(mockHouseholdUserMarco);
 
-            const result = await userService.getHouseholdUsers()
+            const result = await userService.getHouseholdUsers();
 
             expect(result).toHaveLength(1);
             expect(result[0].role).toBe(UserRole.HOUSEHOLD);
         });
-    })
+    });
 
-    describe('createHouseholdUser', () => {
+    describe("createHouseholdUser", () => {
         beforeEach(() => {
-            repository.clear()
-        })
+            repository.clear();
+        });
 
-        it('should add new user to the repository with password hashed and username formatted', async () => {
-            const user = mockHouseholdUserMarco
+        it("should add new user to the repository with password hashed and username formatted", async () => {
+            const user = mockHouseholdUserMarco;
             const result = await userService.createHouseholdUser(user.username, user.password);
 
-            const formattedUser = user.username.toLowerCase().trim()
+            const formattedUser = user.username.toLowerCase().trim();
 
             expect(result.username).toBe(formattedUser);
             expect(result.password).not.toBe(user.password);
-        })
-    })
+        });
+    });
 
-})
+});

@@ -1,7 +1,7 @@
-import {type UserID} from '../UserID';
-import {type User} from '../User';
+import {type UserID} from "../UserID";
+import {type User} from "../User";
 
-export type UserService = {
+export interface UserService {
     getHouseholdUsers(): Promise<User[]>;
 	getUser(id: UserID): Promise<User | null>;
 	updateHouseholdUsername(id: UserID, username: string): Promise<User>;
@@ -10,4 +10,4 @@ export type UserService = {
 	deleteUser(id: UserID): Promise<void>;
     resetAdminPassword(resetCode: string, password: string): Promise<User>;
 
-};
+}

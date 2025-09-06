@@ -1,4 +1,4 @@
-export type AccessTokensDTO = {
+export interface AccessTokensDTO {
     accessToken: string;
     refreshToken: string;
     type: string;
