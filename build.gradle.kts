@@ -95,6 +95,13 @@ tasks.register<NpmTask>("lintFix") {
     args.set(listOf("run", "lint:fix"))
 }
 
+tasks.register<NpmTask>("format") {
+    group = "verification"
+    description = "Format src code automatically"
+    dependsOn(tasks.named("npmCi"))
+    args.set(listOf("run", "format"))
+}
+
 // Documentation task
 tasks.register<NpmTask>("docs") {
     group = "documentation"
