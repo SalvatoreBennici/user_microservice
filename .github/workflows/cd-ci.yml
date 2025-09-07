@@ -1,6 +1,10 @@
 name: cd-ci.yml
 on:
   push
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 jobs:
   upload-docs:
     runs-on: ubuntu-latest
