@@ -4,8 +4,7 @@ plugins {
 
 gitHooks {
     preCommit {
-        tasks("lint")
-        tasks("format")
+        tasks("preCommit")
     }
     commitMsg { conventionalCommits() }
     createHooks(true)

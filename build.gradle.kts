@@ -131,3 +131,10 @@ tasks.register<NpmTask>("installProdDependencies") {
     description = "Install only production dependencies for Docker"
     args.set(listOf("install", "--omit=dev"))
 }
+
+tasks.register<NpmTask>("preCommit") {
+    group = "verification"
+    description = "Run lint, fail if errors; otherwise format and stage changes"
+    dependsOn("npmCi")
+    args.set(listOf("run", "precommit"))
+}
