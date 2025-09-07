@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start:dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "lint": "npx eslint 'src/**/*.{ts,js}'",
+    "lint": "npx eslint \"src/**/*.{ts,js}\"",
     "lint:fix": "npx eslint 'src/**/*.{ts,js}' --fix",
     "format": "prettier --write 'src/**/*.{ts,js,json,md}'",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts"
