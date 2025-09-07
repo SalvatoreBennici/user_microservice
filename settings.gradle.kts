@@ -3,8 +3,12 @@ plugins {
 }
 
 gitHooks {
+    preCommit {
+        tasks("lint")
+        tasks("format")
+    }
     commitMsg { conventionalCommits() }
-    createHooks()
+    createHooks(true)
 }
 
 rootProject.name = "user_microservice"
