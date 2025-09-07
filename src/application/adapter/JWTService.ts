@@ -19,7 +19,10 @@ export class JWTService implements TokenService {
     });
   }
 
+
+
   async generateAccessToken(payload: AccessTokenPayload): Promise<string> {
+      console.log("ciao")
     return this.generateJWT(payload, JWTService.JWT_EXPIRES_IN);
   }
 
