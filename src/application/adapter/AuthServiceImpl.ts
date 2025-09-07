@@ -14,6 +14,10 @@ export class AuthServiceImpl implements AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
+
+
+
+
   async login(username: string, password: string): Promise<AccessToken> {
     const user = await this.userRepository.findUserByUsername(
       username.toLowerCase(),
@@ -24,10 +28,6 @@ export class AuthServiceImpl implements AuthService {
     if (!user) {
       throw new InvalidCredentials();
     }
-
-
-
-
 
     const isPasswordValid = await comparePassword(password, user.password);
 
