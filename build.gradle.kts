@@ -134,7 +134,7 @@ tasks.register<NpmTask>("installProdDependencies") {
 
 tasks.register<NpmTask>("preCommit") {
     group = "verification"
-    description = "Run lint, fail if errors; otherwise format and stage changes"
+    description = "Run lint-staged"
     dependsOn("npmCi")
-    args.set(listOf("run", "precommit"))
+    args.set(listOf("run", "lint-staged"))
 }
