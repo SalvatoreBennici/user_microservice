@@ -27,87 +27,102 @@ node {
 }
 
 // Clean task
-tasks.named<Delete>("clean") {
-    description = "Remove node_modules and dist directories"
-    delete("node_modules", "dist")
+tasks.named("clean") {
+    delete("dist", "docs")
 }
 
-tasks.register<Delete>("cleanBuild") {
+tasks.register<Delete>("cleanAll") {
     group = "build"
-    description = "Remove build output directories"
-    delete("dist", "build")
+    description = "Remove all generated files including node_modules"
+    delete("dist", "docs", "node_modules")
 }
 
-// npmCi task
-val npmCi = tasks.register<NpmTask>("npmCi") {
+// Dependencies
+tasks.register<NpmTask>("npmCi") {
     group = "npm"
     description = "Install npm dependencies cleanly"
     args.set(listOf("ci"))
+    inputs.file("package.json")
+    inputs.file("package-lock.json")
+    outputs.dir("node_modules")
 }
 
-// Build task
-val npmBuild = tasks.register<NpmTask>("npmBuild") {
+// Build
+tasks.register<NpmTask>("npmBuild") {
     group = "build"
-    description = "Build npm"
-    dependsOn(npmCi)
+    description = "Build the TypeScript project"
+    dependsOn("npmCi")
     args.set(listOf("run", "build"))
+    inputs.dir("src")
+    inputs.file("tsconfig.json")
+    outputs.dir("dist")
 }
 
-tasks.named("build") {
-    dependsOn(npmBuild)
+tasks.named("assemble") {
+    dependsOn("npmBuild")
 }
 
-// Test task
-tasks.register<NpmTask>("test") {
+// Test
+tasks.register<NpmTask>("npmTest") {
     group = "verification"
-    description = "Run tests"
-    dependsOn(tasks.named("build"))
+    description = "Run unit tests"
+    dependsOn("npmCi")
     args.set(listOf("run", "test"))
+    inputs.dir("src")
+    inputs.file("package.json")
 }
 
-// Development tasks
+tasks.named("check") {
+    dependsOn("npmTest")
+}
+
+// Development
 tasks.register<NpmTask>("startDev") {
     group = "application"
     description = "Start development server"
-    dependsOn(tasks.named("build"))
+    dependsOn("npmCi")
     args.set(listOf("run", "start:dev"))
 }
 
 tasks.register("devAll") {
     group = "application"
     description = "Clean, build, test and start dev server"
-    dependsOn("cleanBuild", tasks.named("build"), "test")
+    dependsOn("cleanAll", "build", "check")
     finalizedBy("startDev")
 }
 
-// Lint tasks
+// Code quality
 tasks.register<NpmTask>("lint") {
     group = "verification"
-    description = "Run linting"
-    dependsOn(tasks.named("npmCi"))
+    description = "Run ESLint"
+    dependsOn("npmCi")
     args.set(listOf("run", "lint"))
+    inputs.dir("src")
+    inputs.file("eslint.config.mjs")
 }
 
 tasks.register<NpmTask>("lintFix") {
     group = "verification"
-    description = "Fix linting issues automatically"
-    dependsOn(tasks.named("npmCi"))
+    description = "Fix ESLint issues"
+    dependsOn("npmCi")
     args.set(listOf("run", "lint:fix"))
 }
 
 tasks.register<NpmTask>("format") {
     group = "verification"
-    description = "Format src code automatically"
-    dependsOn(tasks.named("npmCi"))
+    description = "Format code with Prettier"
+    dependsOn("npmCi")
     args.set(listOf("run", "format"))
 }
 
 // Documentation task
 tasks.register<NpmTask>("docs") {
     group = "documentation"
-    description = "Generate project documentation"
-    dependsOn(npmCi)
+    description = "Generate TypeDoc documentation"
+    dependsOn("npmCi")
     args.set(listOf("run", "docs"))
+    inputs.dir("src")
+    outputs.dir("docs")
 }
 
 // Production dependencies task
