@@ -1,5 +1,5 @@
 export interface AccessTokensDTO {
-    accessToken: string;
-    refreshToken: string;
-    type: string;
+  accessToken: string;
+  refreshToken: string;
+  type: string;
 }

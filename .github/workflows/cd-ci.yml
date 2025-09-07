@@ -1,0 +1,23 @@
+name: cd-ci.yml
+on:
+  push
+jobs:
+  upload-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+      - name: build docs
+        uses: actions/setup-node@v4.1.0
+        with:
+          cache: npm
+          node-version: lts/*
+      - run: npm clean-install
+      - run: npx typedoc --entryPointStrategy expand ./src --plugin typedoc-github-theme
+      - name: Deploy to GitHub Pages
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: gh-pages
+          build_dir: docs/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

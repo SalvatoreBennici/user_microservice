@@ -1,7 +1,7 @@
 export class UserID {
-    readonly value: string;
+  readonly value: string;
 
-    constructor (value: string) {
-        this.value = value;
-    }
+  constructor(value: string) {
+    this.value = value;
+  }
 }

@@ -1,35 +1,37 @@
-import {TokenService} from "../port/TokenService";
-import {AccessTokenPayload} from "../port/AccessTokenPayload";
+import { TokenService } from "../port/TokenService";
+import { AccessTokenPayload } from "../port/AccessTokenPayload";
 import type { StringValue } from "ms";
 
 import jwt from "jsonwebtoken";
 
 export class JWTService implements TokenService {
-    private static readonly JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-    private static readonly JWT_EXPIRES_IN = "1y";
-    private static readonly REFRESH_EXPIRES_IN = "7d";
+  private static readonly JWT_SECRET =
+    process.env.JWT_SECRET || "your-secret-key";
+  private static readonly JWT_EXPIRES_IN = "1y";
+  private static readonly REFRESH_EXPIRES_IN = "7d";
 
-    private generateJWT (payload: AccessTokenPayload, expirationTime: StringValue): string{
-        return jwt.sign(
-            payload,
-            JWTService.JWT_SECRET,
-            { expiresIn: expirationTime}
-        );
-    }
+  private generateJWT(
+    payload: AccessTokenPayload,
+    expirationTime: StringValue,
+  ): string {
+    return jwt.sign(payload, JWTService.JWT_SECRET, {
+      expiresIn: expirationTime,
+    });
+  }
 
-    async generateAccessToken (payload: AccessTokenPayload): Promise<string> {
-        return this.generateJWT(payload, JWTService.JWT_EXPIRES_IN);
-    }
+  async generateAccessToken(payload: AccessTokenPayload): Promise<string> {
+    return this.generateJWT(payload, JWTService.JWT_EXPIRES_IN);
+  }
 
-    async generateRefreshToken (payload: AccessTokenPayload): Promise<string> {
-        return this.generateJWT(payload, JWTService.REFRESH_EXPIRES_IN);
-    }
+  async generateRefreshToken(payload: AccessTokenPayload): Promise<string> {
+    return this.generateJWT(payload, JWTService.REFRESH_EXPIRES_IN);
+  }
 
-    async verifyToken (token: string): Promise<AccessTokenPayload | null>{
-        try {
-            return jwt.verify(token, JWTService.JWT_SECRET) as AccessTokenPayload;
-        } catch {
-            return null;
-        }
+  async verifyToken(token: string): Promise<AccessTokenPayload | null> {
+    try {
+      return jwt.verify(token, JWTService.JWT_SECRET) as AccessTokenPayload;
+    } catch {
+      return null;
     }
+  }
 }
